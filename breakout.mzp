@@ -1,0 +1,22 @@
+{
+    "openFiles": [
+        "breakout.mzn",
+        "breakout_6.dzn",
+        "breakout_10.dzn",
+        "breakout_12.dzn",
+        "breakout_20.dzn",
+        "breakout2.mzn"
+    ],
+    "openTab": 5,
+    "projectFiles": [
+        "breakout.mzn",
+        "breakout2.mzn",
+        "breakout_10.dzn",
+        "breakout_12.dzn",
+        "breakout_20.dzn",
+        "breakout_6.dzn"
+    ],
+    "selectedBuiltinConfigId": "org.chuffed.chuffed",
+    "selectedBuiltinConfigVersion": "0.10.4",
+    "version": 106
+}
