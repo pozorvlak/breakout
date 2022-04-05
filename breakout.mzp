@@ -1,20 +1,20 @@
 {
     "openFiles": [
-        "breakout.mzn",
+        "fewest_sessions.mzn",
         "breakout_6.dzn",
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
-        "breakout2.mzn"
+        "most_meetings.mzn"
     ],
-    "openTab": 5,
+    "openTab": 0,
     "projectFiles": [
-        "breakout.mzn",
-        "breakout2.mzn",
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
-        "breakout_6.dzn"
+        "breakout_6.dzn",
+        "fewest_sessions.mzn",
+        "most_meetings.mzn"
     ],
     "selectedBuiltinConfigId": "org.chuffed.chuffed",
     "selectedBuiltinConfigVersion": "0.10.4",
