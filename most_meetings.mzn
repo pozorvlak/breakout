@@ -9,7 +9,7 @@ set of int: SESSIONS = 1..sessions;
 array[SESSIONS, PEOPLE] of var ROOMS: loc;
 array[SESSIONS, ROOMS] of var set of PEOPLE: group;
 array[PEOPLE, PEOPLE] of var bool: meet;
-var int: meetings;
+var people..people*people: meetings;
 
 % Set up channel between representations
 constraint forall(s in SESSIONS, r in ROOMS, p in PEOPLE)(loc[s, p] = r <-> p in group[s, r]);
