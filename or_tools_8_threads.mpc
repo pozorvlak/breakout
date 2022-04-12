@@ -1,0 +1,7 @@
+{
+    "-O": 2,
+    "intermediate-solutions": true,
+    "parallel": 8,
+    "solver": "com.google.or-tools@8.0.8283",
+    "solver-statistics": true
+}

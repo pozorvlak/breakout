@@ -7,16 +7,18 @@
         "breakout_20.dzn",
         "most_meetings.mzn"
     ],
-    "openTab": 0,
+    "openTab": 5,
     "projectFiles": [
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
         "breakout_6.dzn",
         "fewest_sessions.mzn",
-        "most_meetings.mzn"
+        "gecode_8_threads.mpc",
+        "most_meetings.mzn",
+        "or_tools_8_threads.mpc"
     ],
-    "selectedBuiltinConfigId": "org.chuffed.chuffed",
-    "selectedBuiltinConfigVersion": "0.10.4",
+    "selectedBuiltinConfigId": "com.google.or-tools",
+    "selectedBuiltinConfigVersion": "8.0.8283",
     "version": 106
 }

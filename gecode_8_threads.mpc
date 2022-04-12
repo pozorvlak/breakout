@@ -1,0 +1,7 @@
+{
+    "-O": 2,
+    "intermediate-solutions": true,
+    "parallel": 8,
+    "solver": "org.gecode.gecode@6.3.0",
+    "solver-statistics": true
+}
