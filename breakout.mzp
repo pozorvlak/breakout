@@ -5,10 +5,12 @@
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
-        "most_meetings.mzn"
+        "most_meetings.mzn",
+        "README.md"
     ],
-    "openTab": 5,
+    "openTab": 6,
     "projectFiles": [
+        "README.md",
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
