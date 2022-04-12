@@ -26,4 +26,9 @@ constraint forall(s in SESSIONS)(loc[s, 1] = 1);
 constraint forall(s in SESSIONS, r in 1..rooms-1)(min(group[s, r]) < min(group[s, r+1]));
 constraint forall(p in PEOPLE)(loc[1, p] = ((p - 1) div roomsize) + 1);
 
-solve maximize meetings;
+solve
+% Comment out the following lines if using a backend other than Gecode.
+% Chuffed and OR Tools will choke on them, COIN-BC will ignore them.
+  :: int_search(loc, dom_w_deg, indomain_random)
+  :: restart_geometric(1.5, 100)
+  maximize meetings;
