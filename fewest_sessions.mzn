@@ -11,7 +11,8 @@ array[SESSIONS, ROOMS] of var set of PEOPLE: group;
 var SESSIONS: all_met;
 
 % Set up channel between representations
-constraint forall(s in SESSIONS, r in ROOMS, p in PEOPLE)(loc[s, p] = r <-> p in group[s, r]);
+include "int_set_channel.mzn";
+constraint forall(s in SESSIONS)(int_set_channel(row(loc, s), row(group, s)));
 
 % Rooms stay within capacity
 constraint forall(s in SESSIONS, r in ROOMS)(card(group[s, r]) <= roomsize);
