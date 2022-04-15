@@ -1,20 +1,20 @@
 {
     "openFiles": [
         "fewest_sessions.mzn",
-        "breakout_6.dzn",
+        "most_meetings.mzn",
+        "breakout_06.dzn",
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
-        "most_meetings.mzn",
         "README.md"
     ],
     "openTab": 6,
     "projectFiles": [
         "README.md",
+        "breakout_06.dzn",
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
-        "breakout_6.dzn",
         "fewest_sessions.mzn",
         "gecode_8_threads.mpc",
         "most_meetings.mzn",
