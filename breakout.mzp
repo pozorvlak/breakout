@@ -2,15 +2,17 @@
     "openFiles": [
         "fewest_sessions.mzn",
         "most_meetings.mzn",
+        "breakout_02.dzn",
         "breakout_06.dzn",
         "breakout_10.dzn",
         "breakout_12.dzn",
         "breakout_20.dzn",
         "README.md"
     ],
-    "openTab": 6,
+    "openTab": 7,
     "projectFiles": [
         "README.md",
+        "breakout_02.dzn",
         "breakout_06.dzn",
         "breakout_10.dzn",
         "breakout_12.dzn",
