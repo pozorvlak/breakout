@@ -26,6 +26,7 @@ class Breakout:
         self.people = people
         self.rooms = rooms
         self.sessions = sessions
+        self.capacity = ceil(self.people / self.rooms)
         # (loc i j k) is true if person i is in room j during session k
         self.loc = Function('loc', IntSort(), IntSort(), IntSort(), BoolSort())
         self.opt = Solver()
@@ -54,8 +55,7 @@ class Breakout:
             yield And(*(Not(self.loc(p, room, session)) for p in absentees))
 
     def rooms_within_capacity(self):
-        capacity = ceil(self.people / self.rooms)
-        absent = self.people - capacity
+        absent = self.people - self.capacity
         for r in range(self.rooms):
             for s in range(self.sessions):
                 self.opt.add(Or(*self.people_not_in_room(r, s, absent)))
@@ -67,6 +67,14 @@ class Breakout:
                 for room in range(self.rooms)
                 for session in range(self.sessions)
             )))
+
+    def first_session_in_order(self):
+        for p in range(self.people):
+            self.opt.add(self.person_in_room(p, p // self.capacity, 0))
+
+    def first_person_in_first_room(self):
+        for s in range(self.sessions):
+            self.opt.add(self.person_in_room(0, 0, s))
 
     def print_model(self):
         model = self.opt.model()
@@ -93,7 +101,9 @@ class Breakout:
         self.one_room_per_session()
         self.rooms_within_capacity()
         self.everyone_meets_everyone()
-        # Break symmetries to improve solver speed?
+        # Break symmetries to improve solver speed
+        self.first_session_in_order()
+        self.first_person_in_first_room()
         self.opt.check()
 
 
