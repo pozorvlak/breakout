@@ -20,77 +20,88 @@ def read_dzn(filename):
     return vars['people'], vars['rooms'], vars['sessions']
 
 
-def person_in_room(loc, p, r, s, rooms):
-    """Person p is in room r (and only room r) during session s"""
-    clauses = [
-        Not(loc(p, rr, s)) for rr in range(r)
-    ] + [
-        loc(p, r, s)
-    ] + [
-        Not(loc(p, rr, s)) for rr in range(r+1, rooms)
-    ]
-    return And(clauses)
+class Breakout:
 
+    def __init__(self, people, rooms, sessions):
+        self.people = people
+        self.rooms = rooms
+        self.sessions = sessions
+        # (loc i j k) is true if person i is in room j during session k
+        self.loc = Function('loc', IntSort(), IntSort(), IntSort(), BoolSort())
+        self.opt = Solver()
 
-def one_room_per_session(opt, loc, people, rooms, sessions):
-    """Everyone is in exactly one room per session"""
-    for p in range(people):
-        for s in range(sessions):
-            opt.add(Or(
-                *(person_in_room(loc, p, r, s, rooms) for r in range(rooms))))
+    def person_in_room(self, p, r, s):
+        """Person p is in room r (and only room r) during session s"""
+        clauses = [
+            Not(self.loc(p, rr, s)) for rr in range(r)
+        ] + [
+            self.loc(p, r, s)
+        ] + [
+            Not(self.loc(p, rr, s)) for rr in range(r+1, self.rooms)
+        ]
+        return And(clauses)
 
+    def one_room_per_session(self):
+        """Everyone is in exactly one room per session"""
+        for p in range(self.people):
+            for s in range(self.sessions):
+                self.opt.add(Or(*(
+                    self.person_in_room(p, r, s)
+                    for r in range(self.rooms))))
 
-def people_not_in_room(loc, room, session, people, absent):
-    for absentees in combinations(range(people), absent):
-        yield And(*(Not(loc(p, room, session)) for p in absentees))
+    def people_not_in_room(self, room, session, absent):
+        for absentees in combinations(range(self.people), absent):
+            yield And(*(Not(self.loc(p, room, session)) for p in absentees))
 
+    def rooms_within_capacity(self):
+        capacity = ceil(self.people / self.rooms)
+        absent = self.people - capacity
+        for r in range(self.rooms):
+            for s in range(self.sessions):
+                self.opt.add(Or(*self.people_not_in_room(r, s, absent)))
 
-def rooms_within_capacity(opt, loc, people, rooms, sessions):
-    capacity = ceil(people / rooms)
-    absent = people - capacity
-    for r in range(rooms):
-        for s in range(sessions):
-            opt.add(Or(*people_not_in_room(loc, r, s, people, absent)))
+    def everyone_meets_everyone(self):
+        for (p1, p2) in combinations(range(self.people), 2):
+            self.opt.add(Or(*(
+                And(self.loc(p1, room, session), self.loc(p2, room, session))
+                for room in range(self.rooms)
+                for session in range(self.sessions)
+            )))
 
+    def print_model(self):
+        model = self.opt.model()
+        for s in range(self.sessions):
+            print(f"Session {s}")
+            locations = []
+            for p in range(self.people):
+                for r in range(self.rooms):
+                    if model.evaluate(self.loc(p, r, s)):
+                        locations.append(r)
+            print(locations)
 
-def everyone_meets_everyone(opt, loc, people, rooms, sessions):
-    for (p1, p2) in combinations(range(people), 2):
-        opt.add(Or(*(
-            And(loc(p1, room, session), loc(p2, room, session))
-            for room in range(rooms) for session in range(sessions)
-        )))
+            groups = []
+            for r in range(self.rooms):
+                group = set()
+                for p in range(self.people):
+                    if model.evaluate(self.loc(p, r, s)):
+                        group.add(p)
+                groups.append(group)
+            print(groups)
+            print()
 
-
-def print_model(model, loc, people, rooms, sessions):
-    for s in range(sessions):
-        locations = []
-        for p in range(people):
-            for r in range(rooms):
-                if model.evaluate(loc(p, r, s)):
-                    locations.append(r)
-        print(locations)
-
-        groups = []
-        for r in range(rooms):
-            group = set()
-            for p in range(people):
-                if model.evaluate(loc(p, r, s)):
-                    group.add(p)
-            groups.append(group)
-        print(groups)
+    def solve(self):
+        self.one_room_per_session()
+        self.rooms_within_capacity()
+        self.everyone_meets_everyone()
+        # Break symmetries to improve solver speed?
+        self.opt.check()
 
 
 def main(dzn_file):
     people, rooms, sessions = read_dzn(dzn_file)
-    # (loc i j k) is true if person i is in room j during session k
-    loc = Function('loc', IntSort(), IntSort(), IntSort(), BoolSort())
-    opt = Solver()
-    one_room_per_session(opt, loc, people, rooms, sessions)
-    rooms_within_capacity(opt, loc, people, rooms, sessions)
-    everyone_meets_everyone(opt, loc, people, rooms, sessions)
-    # Break symmetries to improve solver speed?
-    print(opt.check())
-    print_model(opt.model(), loc, people, rooms, sessions)
+    breakout = Breakout(people, rooms, sessions)
+    breakout.solve()
+    breakout.print_model()
 
 
 if __name__ == '__main__':
