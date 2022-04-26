@@ -110,9 +110,11 @@ class Breakout:
                 break
             goal = self.new_meetings()
             # print(goal)
+            self.opt.push()
             self.opt.maximize(goal)
             self.opt.check()
             groups = self.get_groups()
+            self.opt.pop()
         if optimal:
             print("Optimal")
 
