@@ -5,7 +5,7 @@ from math import ceil
 import re
 import sys
 
-from z3 import And, BoolSort, Function, If, Int, IntSort, Not, Optimize, Or
+from z3 import And, AtMost, Function, If, Int, IntSort, Optimize, Or
 
 
 LINE = re.compile(r'(\w+)\s*=\s*(\d+);')
@@ -27,61 +27,40 @@ class Breakout:
         self.people = people
         self.rooms = rooms
         self.capacity = ceil(self.people / self.rooms)
-        # (loc i j) is true if person i is in room j
-        self.loc = Function('loc', IntSort(), IntSort(), BoolSort())
+        # (loc i) == j if person i is in room j
+        self.loc = Function('loc', IntSort(), IntSort())
         self.met = [[False] * people for p in range(people)]
         self.already_met = Int('already_met')
         self.opt = Optimize()
 
-    def person_in_room(self, p, r):
-        """Person p is in room r (and only room r)"""
-        clauses = [
-            Not(self.loc(p, rr)) for rr in range(r)
-        ] + [
-            self.loc(p, r)
-        ] + [
-            Not(self.loc(p, rr)) for rr in range(r+1, self.rooms)
-        ]
-        return And(clauses)
-
-    def one_room_per_session(self):
-        """Everyone is in exactly one room per session"""
+    def loc_within_range(self):
         for p in range(self.people):
-            self.opt.add(Or(*(
-                self.person_in_room(p, r)
-                for r in range(self.rooms))))
+            self.opt.add(self.loc(p) >= 0)
+            self.opt.add(self.loc(p) < self.rooms)
 
     def people_not_in_room(self, room, absent):
         for absentees in combinations(range(self.people), absent):
-            yield And(*(Not(self.loc(p, room)) for p in absentees))
+            yield And(*(self.loc(p) != room for p in absentees))
 
     def rooms_within_capacity(self):
-        absent = self.people - self.capacity
         for r in range(self.rooms):
-            self.opt.add(Or(*self.people_not_in_room(r, absent)))
+            clauses = (self.loc(p) == r for p in range(self.people))
+            self.opt.add(AtMost(*clauses, self.capacity))
 
     def first_person_in_first_room(self):
-        self.opt.add(self.person_in_room(0, 0))
+        self.opt.add(self.loc(0) == 0)
 
     def get_groups(self):
         model = self.opt.model()
-        groups = []
-        for r in range(self.rooms):
-            group = set()
-            for p in range(self.people):
-                if model.evaluate(self.loc(p, r)):
-                    group.add(p)
-            groups.append(group)
+        groups = [set() for i in range(self.rooms)]
+        for p in range(self.people):
+            i = model.evaluate(self.loc(p)).as_long()
+            groups[i].add(p)
         return groups
 
     def get_locations(self):
         model = self.opt.model()
-        locations = []
-        for p in range(self.people):
-            for r in range(self.rooms):
-                if model.evaluate(self.loc(p, r)):
-                    locations.append(r)
-        return locations
+        return [model.evaluate(self.loc(p)) for p in range(self.people)]
 
     def update_meetings(self, groups):
         new_meetings = 0
@@ -102,13 +81,9 @@ class Breakout:
             groups.append(set(range(lo, hi)))
         return groups
 
-    def shared_room(self, p1, p2):
-        return And(*(self.loc(p1, r) == self.loc(p2, r)
-                     for r in range(self.rooms)))
-
     def new_meetings(self):
         return sum(
-            If(self.shared_room(p1, p2), 1, 0)
+            If(self.loc(p1) == self.loc(p2), 1, 0)
             for p1 in range(self.people)
             for p2 in range(p1 + 1, self.people)
             if not self.met[p1][p2])
@@ -118,7 +93,7 @@ class Breakout:
         return self.rooms * n * (n - 1) / 2
 
     def solve(self):
-        self.one_room_per_session()
+        self.loc_within_range()
         self.rooms_within_capacity()
         # Break symmetries to improve solver speed
         self.first_person_in_first_room()
@@ -133,7 +108,9 @@ class Breakout:
             if (total_meetings == self.people ** 2) or (new_meetings == 0):
                 print(f"Total meetings: {total_meetings}/{self.people ** 2}")
                 break
-            self.opt.maximize(self.new_meetings())
+            goal = self.new_meetings()
+            # print(goal)
+            self.opt.maximize(goal)
             self.opt.check()
             groups = self.get_groups()
         if optimal:
