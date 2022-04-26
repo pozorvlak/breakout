@@ -106,12 +106,12 @@ class Breakout:
         return And(*(self.loc(p1, r) == self.loc(p2, r)
                      for r in range(self.rooms)))
 
-    def wasted_meetings(self):
+    def new_meetings(self):
         return sum(
             If(self.shared_room(p1, p2), 1, 0)
             for p1 in range(self.people)
             for p2 in range(p1 + 1, self.people)
-            if self.met[p1][p2])
+            if not self.met[p1][p2])
 
     def optimal_meetings(self):
         n = self.capacity
@@ -133,7 +133,7 @@ class Breakout:
             if (total_meetings == self.people ** 2) or (new_meetings == 0):
                 print(f"Total meetings: {total_meetings}/{self.people ** 2}")
                 break
-            self.opt.minimize(self.wasted_meetings())
+            self.opt.maximize(self.new_meetings())
             self.opt.check()
             groups = self.get_groups()
         if optimal:
